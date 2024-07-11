@@ -1,7 +1,9 @@
 import "./sidebar.css";
 import { assets } from "../../assets/assets";
 import { useContext, useState } from "react";
+import { motion } from "framer-motion";
 import { Context } from "../../context/Context";
+
 const Sidebar = () => {
 	const [extended, setExtended] = useState(false);
 	const { onSent, prevPrompts, setRecentPrompt, newChat } = useContext(Context);
@@ -10,8 +12,33 @@ const Sidebar = () => {
 		setRecentPrompt(prompt);
 		await onSent(prompt);
 	};
+
+	const sidebarVariants = {
+		open: {
+			width: "250px",
+			transition: {
+				type: "spring",
+				stiffness: 20,
+				damping: 10,
+			},
+		},
+		closed: {
+			width: "50px",
+			transition: {
+				type: "spring",
+				stiffness: 20,
+				damping: 10,
+			},
+		},
+	};
+
 	return (
-		<div className="sidebar">
+		<motion.div
+			className="sidebar"
+			initial={false}
+			animate={extended ? "open" : "closed"}
+			variants={sidebarVariants}
+		>
 			<div className="top">
 				<img
 					src={assets.menu_icon}
@@ -22,24 +49,31 @@ const Sidebar = () => {
 					}}
 				/>
 				<div className="new-chat">
-					<img src={assets.plus_icon} alt="" onClick={()=>{
-                        newChat()
-                    }} />
+					<motion.img
+						src={assets.plus_icon}
+						alt=""
+						onClick={() => {
+							newChat();
+						}}
+						whileHover={{ scale: 1.1 }}
+					/>
 					{extended ? <p>New Chat</p> : null}
 				</div>
 				{extended ? (
 					<div className="recent">
 						<p className="recent-title">Recent</p>
-						{prevPrompts.map((item, index) => {
-							return (
-								<div onClick={()=>{
-                                    loadPreviousPrompt(item)
-                                }} className="recent-entry">
-									<img src={assets.message_icon} alt="" />
-									<p>{item.slice(0, 18)}...</p>
-								</div>
-							);
-						})}
+						{prevPrompts.map((item, index) => (
+							<div
+								key={index}
+								onClick={() => {
+									loadPreviousPrompt(item);
+								}}
+								className="recent-entry"
+							>
+								<img src={assets.message_icon} alt="" />
+								<p>{item.slice(0, 18)}...</p>
+							</div>
+						))}
 					</div>
 				) : null}
 			</div>
@@ -57,7 +91,7 @@ const Sidebar = () => {
 					{extended ? <p>Settings</p> : null}
 				</div>
 			</div>
-		</div>
+		</motion.div>
 	);
 };
 
